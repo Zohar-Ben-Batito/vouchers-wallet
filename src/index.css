@@ -894,3 +894,27 @@ input:focus, textarea:focus, select:focus {
   font-size: 11px;
   color: var(--text-secondary);
 }
+
+/* RTL Support overrides */
+[dir="rtl"] .input-with-icon-container svg {
+  right: 14px;
+  left: auto;
+}
+
+[dir="rtl"] .input-with-icon {
+  padding-right: 44px;
+  padding-left: 16px;
+}
+
+[dir="rtl"] .user-profile {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .stat-card {
+  text-align: right;
+}
+
+[dir="rtl"] .modal-header button {
+  margin-right: auto;
+  margin-left: 0;
+}

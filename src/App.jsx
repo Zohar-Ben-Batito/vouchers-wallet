@@ -30,17 +30,140 @@ import {
   Scissors, 
   CreditCard,
   Calendar,
-  DollarSign,
-  Clipboard,
-  FileText,
   AlertTriangle,
-  ExternalLink,
+  FileText,
   ChevronRight,
-  Eye,
-  EyeOff
+  Clock,
+  Languages
 } from 'lucide-react';
 
+// Translation Dictionary
+const t = {
+  en: {
+    appTitle: "מענקים ושוברים",
+    activeItems: "Active Items",
+    expiringSoon: "Expiring Soon",
+    all: "All",
+    vouchers: "Vouchers",
+    coupons: "Coupons",
+    memberships: "Clubs",
+    searchPlaceholder: "Search name, code, value...",
+    filterActive: "Active",
+    filterUsed: "Used",
+    filterAll: "All Statuses",
+    noItems: "No items found. Tap the + to add one!",
+    addTitle: "Add Wallet Item",
+    editTitle: "Edit Wallet Item",
+    nameLabel: "Name",
+    namePlaceholder: "e.g. Amazon Gift Card, Nike Coupon...",
+    typeLabel: "Type",
+    valueLabel: "Value / Amount",
+    valuePlaceholder: "e.g. 50, 20, Free Drink",
+    currencyLabel: "Format / Currency",
+    expiryLabel: "Expiration Date (Optional)",
+    codeLabel: "Code / Coupon ID (Optional)",
+    codePlaceholder: "e.g. Code, Link or Member Card ID",
+    notesLabel: "Description / Notes (Optional)",
+    notesPlaceholder: "Add location details, rules, or restrictions here...",
+    cancel: "Cancel",
+    save: "Save Item",
+    detailsTitle: "Item Details",
+    copyCode: "Copy Code",
+    copied: "Copied! ✅",
+    markUsed: "Mark as Used",
+    markActive: "Mark Active",
+    close: "Close",
+    deleteConfirm: "Are you sure you want to delete this item?",
+    deleteItem: "Delete Item",
+    expired: "Expired",
+    expiresToday: "Expires Today!",
+    expiresTomorrow: "Expires Tomorrow",
+    expiresInDays: "Expires in {days} days",
+    expiresOn: "Expires: {date}",
+    noExpiry: "No expiration date",
+    syncedOnline: "Synced & Online",
+    offlineMode: "Offline Mode (Local Save)",
+    logout: "Log Out",
+    initializing: "Initializing your pocket...",
+    accessWallet: "Access your synced voucher wallet",
+    createAccount: "Create your account to sync your vouchers",
+    email: "Email",
+    password: "Password",
+    login: "Log In",
+    signup: "Sign Up",
+    alreadyAccount: "Already have an account?",
+    dontHaveAccount: "Don't have an account?",
+    invalidEmailPass: "Invalid email or password.",
+    emailInUse: "Email already in use.",
+    weakPassword: "Password should be at least 6 characters.",
+    fillAllFields: "Please fill in all fields."
+  },
+  he: {
+    appTitle: "מענקים ושוברים",
+    activeItems: "פריטים פעילים",
+    expiringSoon: "פג תוקף בקרוב",
+    all: "הכל",
+    vouchers: "שוברים 🎫",
+    coupons: "קופונים ✂️",
+    memberships: "מועדונים 💳",
+    searchPlaceholder: "חיפוש שם, קוד, ערך...",
+    filterActive: "פעיל",
+    filterUsed: "משומש",
+    filterAll: "הכל",
+    noItems: "לא נמצאו פריטים. לחץ על + כדי להוסיף!",
+    addTitle: "הוספת פריט חדש",
+    editTitle: "עריכת פריט",
+    nameLabel: "שם הפריט",
+    namePlaceholder: "לדוגמה: כרטיס מתנה אמזון, קופון נייקי...",
+    typeLabel: "סוג",
+    valueLabel: "ערך / סכום",
+    valuePlaceholder: "לדוגמה: 50, 20, משקה חינם",
+    currencyLabel: "מטבע / פורמט",
+    expiryLabel: "תאריך תפוגה (אופציונלי)",
+    codeLabel: "קוד / מזהה קופון (אופציונלי)",
+    codePlaceholder: "קוד, קישור או מזהה כרטיס מועדון",
+    notesLabel: "תיאור / הערות (אופציונלי)",
+    notesPlaceholder: "הוסף מיקום, כללים או מגבלות...",
+    cancel: "ביטול",
+    save: "שמירה",
+    detailsTitle: "פרטי הפריט",
+    copyCode: "העתק קוד",
+    copied: "הועתק! ✅",
+    markUsed: "סמן כמשומש",
+    markActive: "סמן כפעיל",
+    close: "סגור",
+    deleteConfirm: "האם אתה בטוח שברצונך למחוק פריט זה?",
+    deleteItem: "מחק פריט",
+    expired: "פג תוקף",
+    expiresToday: "פג היום!",
+    expiresTomorrow: "פג מחר",
+    expiresInDays: "פג בעוד {days} ימים",
+    expiresOn: "בתוקף עד: {date}",
+    noExpiry: "ללא תאריך תפוגה",
+    syncedOnline: "מסונכרן ומחובר",
+    offlineMode: "מצב לא מקוון (שמירה מקומית)",
+    logout: "התנתק",
+    initializing: "מכין את הארנק שלך...",
+    accessWallet: "גישה לארנק המסונכרן שלך",
+    createAccount: "צור חשבון כדי לסנכרן את השוברים שלך",
+    email: "אימייל",
+    password: "סיסמה",
+    login: "התחבר",
+    signup: "הרשם",
+    alreadyAccount: "כבר יש לך חשבון?",
+    dontHaveAccount: "אין לך חשבון?",
+    invalidEmailPass: "אימייל או סיסמה שגויים.",
+    emailInUse: "האימייל כבר בשימוש.",
+    weakPassword: "הסיסמה חייבת להיות לפחות 6 תווים.",
+    fillAllFields: "אנא מלא את כל השדות."
+  }
+};
+
 function App() {
+  // Localized state: default to Hebrew ('he')
+  const [lang, setLang] = useState(localStorage.getItem('wallet_lang') || 'he');
+  const text = t[lang];
+
   // Auth State
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -66,14 +189,23 @@ function App() {
   // Form State
   const [itemName, setItemName] = useState('');
   const [itemType, setItemType] = useState('voucher'); // 'voucher', 'coupon', 'membership'
-  const [itemValue, setItemValue] = useState(''); // E.g., "$50", "20% Off", "Gold Tier"
+  const [itemValue, setItemValue] = useState(''); 
+  const [itemCurrency, setItemCurrency] = useState('ILS'); // 'ILS', 'USD', 'EUR', 'PERCENT', 'CUSTOM'
   const [itemExpiryDate, setItemExpiryDate] = useState('');
   const [itemCode, setItemCode] = useState('');
   const [itemNotes, setItemNotes] = useState('');
 
   // Details dialog state (for viewing code/details in full screen)
   const [activeDetailsItem, setActiveDetailsItem] = useState(null);
+  const [detailsCodeType, setDetailsCodeType] = useState('qr'); // 'qr', 'barcode'
   const [copiedId, setCopiedId] = useState(null);
+
+  // Toggle Language Handler
+  const toggleLanguage = () => {
+    const newLang = lang === 'he' ? 'en' : 'he';
+    setLang(newLang);
+    localStorage.setItem('wallet_lang', newLang);
+  };
 
   // Monitor network connection
   useEffect(() => {
@@ -126,7 +258,7 @@ function App() {
     e.preventDefault();
     setAuthError('');
     if (!email || !password) {
-      setAuthError('Please fill in all fields.');
+      setAuthError(text.fillAllFields);
       return;
     }
     try {
@@ -138,11 +270,11 @@ function App() {
     } catch (err) {
       console.error(err);
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-        setAuthError('Invalid email or password.');
+        setAuthError(text.invalidEmailPass);
       } else if (err.code === 'auth/email-already-in-use') {
-        setAuthError('Email already in use.');
+        setAuthError(text.emailInUse);
       } else if (err.code === 'auth/weak-password') {
-        setAuthError('Password should be at least 6 characters.');
+        setAuthError(text.weakPassword);
       } else {
         setAuthError(err.message);
       }
@@ -153,7 +285,7 @@ function App() {
     signOut(auth);
   };
 
-  // Add Item Operation
+  // Add/Edit Operations
   const handleSaveItem = async (e) => {
     e.preventDefault();
     if (!itemName.trim() || !itemValue.trim()) return;
@@ -162,6 +294,7 @@ function App() {
       name: itemName,
       type: itemType,
       value: itemValue,
+      currency: itemCurrency,
       expiryDate: itemExpiryDate,
       code: itemCode,
       notes: itemNotes,
@@ -170,10 +303,11 @@ function App() {
       updatedAt: Date.now()
     };
 
-    // Close modal optimistically
+    // Close modal and reset fields optimistically
     setItemName('');
     setItemType('voucher');
     setItemValue('');
+    setItemCurrency('ILS');
     setItemExpiryDate('');
     setItemCode('');
     setItemNotes('');
@@ -186,7 +320,7 @@ function App() {
         const itemRef = doc(db, 'vouchers', selectedItem.id);
         await updateDoc(itemRef, {
           ...voucherData,
-          used: selectedItem.used // preserve used state
+          used: selectedItem.used
         });
       }
     } catch (err) {
@@ -207,7 +341,7 @@ function App() {
   };
 
   const handleDeleteItem = async (itemId) => {
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
+    if (!window.confirm(text.deleteConfirm)) return;
     try {
       await deleteDoc(doc(db, 'vouchers', itemId));
       if (activeDetailsItem?.id === itemId) {
@@ -224,6 +358,7 @@ function App() {
     setItemName('');
     setItemType(activeTab === 'all' ? 'voucher' : activeTab);
     setItemValue('');
+    setItemCurrency('ILS');
     setItemExpiryDate('');
     setItemCode('');
     setItemNotes('');
@@ -231,27 +366,28 @@ function App() {
   };
 
   const openEditModal = (item, e) => {
-    e.stopPropagation(); // prevent opening details
+    e.stopPropagation();
     setModalType('edit');
     setSelectedItem(item);
     setItemName(item.name);
     setItemType(item.type);
     setItemValue(item.value);
+    setItemCurrency(item.currency || 'CUSTOM');
     setItemExpiryDate(item.expiryDate || '');
     setItemCode(item.code || '');
     setItemNotes(item.notes || '');
     setIsModalOpen(true);
   };
 
-  const copyToClipboard = (text, id) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = (textToCopy, id) => {
+    navigator.clipboard.writeText(textToCopy);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   // Helper: Expiration calculations
   const getExpiryStatus = (expiryDateStr) => {
-    if (!expiryDateStr) return { label: 'No expiration date', color: 'text-muted', urgency: 0 };
+    if (!expiryDateStr) return { label: text.noExpiry, color: 'text-muted', urgency: 0 };
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -263,16 +399,31 @@ function App() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
     if (diffDays < 0) {
-      return { label: 'Expired', color: 'category-health', urgency: -1 }; // Red
+      return { label: text.expired, color: 'category-health', urgency: -1 };
     } else if (diffDays === 0) {
-      return { label: 'Expires Today!', color: 'category-health', urgency: 3 }; // Glowing red/amber
+      return { label: text.expiresToday, color: 'category-health', urgency: 3 };
     } else if (diffDays === 1) {
-      return { label: 'Expires Tomorrow', color: 'category-study', urgency: 2 }; // Amber
+      return { label: text.expiresTomorrow, color: 'category-study', urgency: 2 };
     } else if (diffDays <= 7) {
-      return { label: `Expires in ${diffDays} days`, color: 'category-study', urgency: 1 }; // Yellow
+      return { label: text.expiresInDays.replace('{days}', diffDays), color: 'category-study', urgency: 1 };
     } else {
-      return { label: `Expires: ${new Date(expiryDateStr).toLocaleDateString()}`, color: 'category-personal', urgency: 0 }; // Green/Blue
+      const formattedDate = new Date(expiryDateStr).toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-US');
+      return { 
+        label: text.expiresOn.replace('{date}', formattedDate), 
+        color: 'category-personal', 
+        urgency: 0 
+      };
     }
+  };
+
+  // Helper: Currency / format value
+  const formatValue = (value, currency) => {
+    if (!currency || currency === 'CUSTOM') return value;
+    if (currency === 'ILS') return `₪${value}`;
+    if (currency === 'USD') return `$${value}`;
+    if (currency === 'EUR') return `€${value}`;
+    if (currency === 'PERCENT') return `${value}%`;
+    return value;
   };
 
   // Stats Calculations
@@ -296,10 +447,11 @@ function App() {
     // Search Query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
+      const formattedVal = formatValue(item.value, item.currency).toLowerCase();
       return (
         item.name.toLowerCase().includes(q) ||
         (item.code || '').toLowerCase().includes(q) ||
-        (item.value || '').toLowerCase().includes(q)
+        formattedVal.includes(q)
       );
     }
     return true;
@@ -307,28 +459,24 @@ function App() {
 
   // Sort items: Soonest expiring active items first, then others
   filteredItems.sort((a, b) => {
-    // Used items always go to the bottom
     if (a.used !== b.used) return a.used ? 1 : -1;
     
-    // Sort by expiry date if available
     if (a.expiryDate && b.expiryDate) {
       return new Date(a.expiryDate) - new Date(b.expiryDate);
     }
     
-    // Items with expiry dates show before items without
     if (a.expiryDate) return -1;
     if (b.expiryDate) return 1;
     
-    // Fallback: Newest first
     return b.updatedAt - a.updatedAt;
   });
 
   if (authLoading) {
     return (
-      <div className="auth-container">
+      <div className="auth-container" dir={lang === 'he' ? 'rtl' : 'ltr'}>
         <div className="glass-panel auth-card fade-in" style={{ textAlign: 'center' }}>
-          <div className="auth-logo">מענקים ושוברים</div>
-          <div className="auth-subtitle">Initializing your pocket...</div>
+          <div className="auth-logo">{text.appTitle}</div>
+          <div className="auth-subtitle">{text.initializing}</div>
         </div>
       </div>
     );
@@ -336,14 +484,27 @@ function App() {
 
   if (!user) {
     return (
-      <div className="auth-container">
+      <div className="auth-container" dir={lang === 'he' ? 'rtl' : 'ltr'}>
         <div className="bg-glow-1"></div>
         <div className="bg-glow-2"></div>
         <div className="glass-panel auth-card fade-in">
           <div className="auth-header">
-            <div className="auth-logo">מענקים ושוברים</div>
+            {/* Language Switcher in Auth */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+              <button 
+                type="button" 
+                className="btn btn-secondary" 
+                style={{ padding: '4px 10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '8px' }}
+                onClick={toggleLanguage}
+              >
+                <Languages size={14} />
+                <span>{lang === 'he' ? 'English' : 'עברית'}</span>
+              </button>
+            </div>
+
+            <div className="auth-logo">{text.appTitle}</div>
             <div className="auth-subtitle">
-              {isSignUp ? 'Create your account to sync your vouchers' : 'Access your synced voucher wallet'}
+              {isSignUp ? text.createAccount : text.accessWallet}
             </div>
           </div>
           
@@ -351,7 +512,7 @@ function App() {
           
           <form className="auth-form" onSubmit={handleAuth}>
             <div className="form-group">
-              <label className="form-label">Email</label>
+              <label className="form-label">{text.email}</label>
               <div className="input-with-icon-container">
                 <Mail size={16} />
                 <input 
@@ -365,7 +526,7 @@ function App() {
               </div>
             </div>
             <div className="form-group">
-              <label className="form-label">Password</label>
+              <label className="form-label">{text.password}</label>
               <div className="input-with-icon-container">
                 <Lock size={16} />
                 <input 
@@ -379,14 +540,14 @@ function App() {
               </div>
             </div>
             <button type="submit" className="btn btn-primary" style={{ marginTop: '10px' }}>
-              {isSignUp ? 'Sign Up' : 'Log In'}
+              {isSignUp ? text.signup : text.login}
             </button>
           </form>
           
           <div className="auth-footer">
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+            {isSignUp ? text.alreadyAccount : text.dontHaveAccount}{' '}
             <span className="auth-link" onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); }}>
-              {isSignUp ? 'Log In' : 'Sign Up'}
+              {isSignUp ? text.login : text.signup}
             </span>
           </div>
         </div>
@@ -395,32 +556,43 @@ function App() {
   }
 
   return (
-    <div className="app-container">
+    <div className="app-container" dir={lang === 'he' ? 'rtl' : 'ltr'}>
       <div className="bg-glow-1"></div>
       <div className="bg-glow-2"></div>
       
       {/* Header */}
       <header className="app-header fade-in">
         <div className="app-title-group">
-          <h1 className="logo-text">מענקים ושוברים</h1>
+          <h1 className="logo-text">{text.appTitle}</h1>
           <div className="sync-status">
             {isOnline ? (
               <>
                 <span className="sync-indicator sync-online"></span>
-                <span>Synced & Online</span>
+                <span>{text.syncedOnline}</span>
               </>
             ) : (
               <>
                 <span className="sync-indicator sync-offline"></span>
-                <span>Offline Mode (Local Save)</span>
+                <span>{text.offlineMode}</span>
               </>
             )}
           </div>
         </div>
         
-        <div className="user-profile">
+        <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button 
+            type="button"
+            className="btn btn-secondary" 
+            style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid var(--panel-border)' }}
+            onClick={toggleLanguage}
+            title={lang === 'he' ? 'שנה שפה' : 'Change Language'}
+          >
+            <Languages size={13} />
+            <span>{lang === 'he' ? 'English' : 'עברית'}</span>
+          </button>
+          
           <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{user.email.split('@')[0]}</span>
-          <button className="btn-icon" onClick={handleLogout} title="Log Out">
+          <button className="btn-icon" onClick={handleLogout} title={text.logout}>
             <LogOut size={16} />
           </button>
         </div>
@@ -434,7 +606,7 @@ function App() {
           </div>
           <div className="stat-details">
             <span className="stat-num">{activeItems.length}</span>
-            <span className="stat-lbl">Active Items</span>
+            <span className="stat-lbl">{text.activeItems}</span>
           </div>
         </div>
         <div className="glass-panel stat-card">
@@ -443,7 +615,7 @@ function App() {
           </div>
           <div className="stat-details">
             <span className="stat-num">{expiringSoonCount}</span>
-            <span className="stat-lbl">Expiring Soon</span>
+            <span className="stat-lbl">{text.expiringSoon}</span>
           </div>
         </div>
       </section>
@@ -454,28 +626,28 @@ function App() {
           className={`nav-tab ${activeTab === 'all' ? 'nav-tab-active' : ''}`}
           onClick={() => setActiveTab('all')}
         >
-          <span>All</span>
+          <span>{text.all}</span>
         </button>
         <button 
           className={`nav-tab ${activeTab === 'voucher' ? 'nav-tab-active' : ''}`}
           onClick={() => setActiveTab('voucher')}
         >
           <Ticket size={14} />
-          <span>Vouchers</span>
+          <span>{lang === 'he' ? 'שוברים' : text.vouchers}</span>
         </button>
         <button 
           className={`nav-tab ${activeTab === 'coupon' ? 'nav-tab-active' : ''}`}
           onClick={() => setActiveTab('coupon')}
         >
           <Scissors size={14} />
-          <span>Coupons</span>
+          <span>{lang === 'he' ? 'קופונים' : text.coupons}</span>
         </button>
         <button 
           className={`nav-tab ${activeTab === 'membership' ? 'nav-tab-active' : ''}`}
           onClick={() => setActiveTab('membership')}
         >
           <CreditCard size={14} />
-          <span>Clubs</span>
+          <span>{lang === 'he' ? 'מועדונים' : text.memberships}</span>
         </button>
       </nav>
 
@@ -486,7 +658,7 @@ function App() {
           <input 
             type="text" 
             className="input-with-icon" 
-            placeholder="Search name, code, value..." 
+            placeholder={text.searchPlaceholder} 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -496,9 +668,9 @@ function App() {
           onChange={(e) => setStatusFilter(e.target.value)}
           style={{ width: '110px', padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
         >
-          <option value="active">Active</option>
-          <option value="used">Used</option>
-          <option value="all_status">All</option>
+          <option value="active">{text.filterActive}</option>
+          <option value="used">{text.filterUsed}</option>
+          <option value="all_status">{text.filterAll}</option>
         </select>
       </div>
 
@@ -508,7 +680,7 @@ function App() {
           {filteredItems.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-secondary)' }}>
               <Ticket size={36} style={{ opacity: 0.3, marginBottom: '10px' }} />
-              <p>No items found. Tap the + to add one!</p>
+              <p>{text.noItems}</p>
             </div>
           ) : (
             filteredItems.map(item => {
@@ -518,7 +690,10 @@ function App() {
                   key={item.id} 
                   className={`glass-panel task-item ${item.used ? 'task-completed' : ''}`}
                   style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '8px', padding: '14px 16px' }}
-                  onClick={() => setActiveDetailsItem(item)}
+                  onClick={() => {
+                    setActiveDetailsItem(item);
+                    setDetailsCodeType('qr'); // reset toggle
+                  }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
                     {/* Checkbox for Used status */}
@@ -568,13 +743,13 @@ function App() {
                     </div>
 
                     {/* Value Badge */}
-                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <div style={{ textAlign: lang === 'he' ? 'left' : 'right', display: 'flex', flexDirection: 'column', gap: '2px', paddingRight: lang === 'he' ? '0' : '4px', paddingLeft: lang === 'he' ? '4px' : '0' }}>
                       <span style={{ 
                         fontSize: '16px', 
                         fontWeight: '700', 
                         color: item.used ? 'var(--text-muted)' : 'var(--text-primary)' 
                       }}>
-                        {item.value}
+                        {formatValue(item.value, item.currency)}
                       </span>
                     </div>
 
@@ -596,7 +771,7 @@ function App() {
       </main>
 
       {/* Floating Add Action Button */}
-      <button className="fab-btn" onClick={openAddModal} title="Add New Item">
+      <button className="fab-btn" onClick={openAddModal} title={text.addTitle}>
         <Plus size={24} />
       </button>
 
@@ -605,7 +780,7 @@ function App() {
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{modalType === 'add' ? 'Add Wallet Item' : 'Edit Wallet Item'}</h3>
+              <h3>{modalType === 'add' ? text.addTitle : text.editTitle}</h3>
               <button className="btn-icon" onClick={() => setIsModalOpen(false)} style={{ border: 'none', background: 'transparent', fontSize: '20px' }}>
                 &times;
               </button>
@@ -613,10 +788,10 @@ function App() {
 
             <form onSubmit={handleSaveItem} className="modal-form">
               <div className="form-group">
-                <label className="form-label">Name</label>
+                <label className="form-label">{text.nameLabel}</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Amazon Gift Card, Nike Coupon..." 
+                  placeholder={text.namePlaceholder} 
                   value={itemName}
                   onChange={(e) => setItemName(e.target.value)}
                   required
@@ -626,28 +801,39 @@ function App() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Type</label>
+                  <label className="form-label">{text.typeLabel}</label>
                   <select value={itemType} onChange={(e) => setItemType(e.target.value)}>
-                    <option value="voucher">Voucher 🎫</option>
-                    <option value="coupon">Coupon ✂️</option>
-                    <option value="membership">Membership 💳</option>
+                    <option value="voucher">🎫 {lang === 'he' ? 'שובר' : 'Voucher'}</option>
+                    <option value="coupon">✂️ {lang === 'he' ? 'קופון' : 'Coupon'}</option>
+                    <option value="membership">💳 {lang === 'he' ? 'מועדון חבר' : 'Membership'}</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Value / Amount</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. $50, 20% Off, Free Drink" 
-                    value={itemValue}
-                    onChange={(e) => setItemValue(e.target.value)}
-                    required
-                  />
+                  <label className="form-label">{text.currencyLabel}</label>
+                  <select value={itemCurrency} onChange={(e) => setItemCurrency(e.target.value)}>
+                    <option value="ILS">₪ (Shekel)</option>
+                    <option value="USD">$ (Dollar)</option>
+                    <option value="EUR">€ (Euro)</option>
+                    <option value="PERCENT">% (Percent)</option>
+                    <option value="CUSTOM">{lang === 'he' ? 'חופשי / טקסט' : 'Text / None'}</option>
+                  </select>
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Expiration Date (Optional)</label>
+                <label className="form-label">{text.valueLabel}</label>
+                <input 
+                  type="text" 
+                  placeholder={text.valuePlaceholder} 
+                  value={itemValue}
+                  onChange={(e) => setItemValue(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">{text.expiryLabel}</label>
                 <input 
                   type="date" 
                   value={itemExpiryDate} 
@@ -656,19 +842,19 @@ function App() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Code / Coupon ID (Optional)</label>
+                <label className="form-label">{text.codeLabel}</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Code, Link or Member Card ID" 
+                  placeholder={text.codePlaceholder} 
                   value={itemCode}
                   onChange={(e) => setItemCode(e.target.value)}
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Description / Notes (Optional)</label>
+                <label className="form-label">{text.notesLabel}</label>
                 <textarea 
-                  placeholder="Add location details, rules, or restrictions here..." 
+                  placeholder={text.notesPlaceholder} 
                   rows={3}
                   value={itemNotes}
                   onChange={(e) => setItemNotes(e.target.value)}
@@ -676,8 +862,8 @@ function App() {
               </div>
 
               <div className="modal-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Save Item</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>{text.cancel}</button>
+                <button type="submit" className="btn btn-primary">{text.save}</button>
               </div>
             </form>
           </div>
@@ -693,7 +879,7 @@ function App() {
                 {activeDetailsItem.type === 'voucher' && <Ticket size={20} />}
                 {activeDetailsItem.type === 'coupon' && <Scissors size={20} />}
                 {activeDetailsItem.type === 'membership' && <CreditCard size={20} />}
-                <span>Item details</span>
+                <span>{text.detailsTitle}</span>
               </h3>
               <button className="btn-icon" onClick={() => setActiveDetailsItem(null)} style={{ border: 'none', background: 'transparent', fontSize: '20px' }}>
                 &times;
@@ -701,7 +887,7 @@ function App() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '10px' }}>
-              <div style={{ textAlign: 'center', padding: '16px 0', borderBottom: '1px solid var(--panel-border)' }}>
+              <div style={{ textAlign: 'center', padding: '12px 0', borderBottom: '1px solid var(--panel-border)' }}>
                 <h2 style={{ fontSize: '24px', fontWeight: '700' }}>{activeDetailsItem.name}</h2>
                 <div style={{ 
                   fontSize: '32px', 
@@ -712,46 +898,94 @@ function App() {
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
                 }}>
-                  {activeDetailsItem.value}
+                  {formatValue(activeDetailsItem.value, activeDetailsItem.currency)}
                 </div>
               </div>
 
               {activeDetailsItem.code && (
                 <div className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.2)' }}>
-                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Code / ID</span>
-                  <span style={{ fontSize: '20px', fontWeight: 'bold', fontFamily: 'monospace', letterSpacing: '0.05em', color: 'white' }}>{activeDetailsItem.code}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {lang === 'he' ? 'קוד / מזהה' : 'Code / Card ID'}
+                  </span>
+                  <span style={{ fontSize: '20px', fontWeight: 'bold', fontFamily: 'monospace', letterSpacing: '0.05em', color: 'white' }}>
+                    {activeDetailsItem.code}
+                  </span>
+                  
+                  {/* QR/Barcode Toggle tabs */}
+                  <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '2px', borderRadius: '8px', margin: '6px 0' }}>
+                    <button 
+                      type="button"
+                      onClick={() => setDetailsCodeType('qr')}
+                      style={{ 
+                        background: detailsCodeType === 'qr' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                        border: 'none', color: 'white', padding: '4px 12px', fontSize: '11px', borderRadius: '6px', cursor: 'pointer', outline: 'none'
+                      }}
+                    >
+                      QR Code
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setDetailsCodeType('barcode')}
+                      style={{ 
+                        background: detailsCodeType === 'barcode' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                        border: 'none', color: 'white', padding: '4px 12px', fontSize: '11px', borderRadius: '6px', cursor: 'pointer', outline: 'none'
+                      }}
+                    >
+                      Barcode
+                    </button>
+                  </div>
+
+                  {/* Render QR or Barcode */}
+                  {detailsCodeType === 'qr' ? (
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(activeDetailsItem.code)}`} 
+                      alt="QR Code" 
+                      style={{ width: '130px', height: '130px', display: 'block', margin: '5px auto', borderRadius: '8px', border: '4px solid white' }} 
+                    />
+                  ) : (
+                    <img 
+                      src={`https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(activeDetailsItem.code)}&code=Code128&translate-esc=true`} 
+                      alt="Barcode" 
+                      style={{ width: '100%', maxWidth: '240px', height: 'auto', display: 'block', margin: '5px auto', borderRadius: '4px', background: 'white', padding: '8px' }} 
+                    />
+                  )}
+
                   <button 
                     className="btn btn-secondary" 
-                    style={{ padding: '6px 16px', fontSize: '13px', marginTop: '4px' }}
+                    style={{ padding: '6px 16px', fontSize: '13px', marginTop: '8px' }}
                     onClick={() => copyToClipboard(activeDetailsItem.code, activeDetailsItem.id)}
                   >
-                    {copiedId === activeDetailsItem.id ? 'Copied! ✅' : 'Copy Code'}
+                    {copiedId === activeDetailsItem.id ? text.copied : text.copyCode}
                   </button>
                 </div>
               )}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '8px' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Type</span>
-                  <span style={{ fontWeight: '600', textTransform: 'capitalize' }}>{activeDetailsItem.type}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '8px' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Status</span>
-                  <span style={{ fontWeight: '600', color: activeDetailsItem.used ? 'var(--text-muted)' : 'var(--secondary)' }}>
-                    {activeDetailsItem.used ? 'Used' : 'Active / Available'}
+                  <span style={{ color: 'var(--text-secondary)' }}>{lang === 'he' ? 'סוג' : 'Type'}</span>
+                  <span style={{ fontWeight: '600' }}>
+                    {activeDetailsItem.type === 'voucher' ? (lang === 'he' ? 'שובר' : 'Voucher') : 
+                     activeDetailsItem.type === 'coupon' ? (lang === 'he' ? 'קופון' : 'Coupon') : 
+                     (lang === 'he' ? 'מועדון חבר' : 'Membership')}
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '8px' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Expiration</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{lang === 'he' ? 'סטטוס' : 'Status'}</span>
+                  <span style={{ fontWeight: '600', color: activeDetailsItem.used ? 'var(--text-muted)' : 'var(--secondary)' }}>
+                    {activeDetailsItem.used ? (lang === 'he' ? 'משומש' : 'Used') : (lang === 'he' ? 'פעיל / זמין' : 'Active')}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>{lang === 'he' ? 'תפוגה' : 'Expiration'}</span>
                   <span style={{ fontWeight: '600' }}>
-                    {activeDetailsItem.expiryDate ? new Date(activeDetailsItem.expiryDate).toLocaleDateString() : 'No expiration date'}
+                    {activeDetailsItem.expiryDate ? new Date(activeDetailsItem.expiryDate).toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-US') : text.noExpiry}
                   </span>
                 </div>
               </div>
 
               {activeDetailsItem.notes && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Notes & Restrictions:</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{lang === 'he' ? 'הערות והגבלות:' : 'Notes:'}</span>
                   <div className="glass-panel" style={{ padding: '12px', fontSize: '13px', color: 'var(--text-primary)', background: 'rgba(255,255,255,0.02)', maxHeight: '120px', overflowY: 'auto' }}>
                     {activeDetailsItem.notes}
                   </div>
@@ -763,9 +997,9 @@ function App() {
                   className="btn btn-secondary" 
                   onClick={() => toggleItemUsed(activeDetailsItem).then(() => setActiveDetailsItem(prev => ({...prev, used: !prev.used})))}
                 >
-                  {activeDetailsItem.used ? 'Mark Active' : 'Mark as Used'}
+                  {activeDetailsItem.used ? text.markActive : text.markUsed}
                 </button>
-                <button className="btn btn-primary" onClick={() => setActiveDetailsItem(null)}>Close</button>
+                <button className="btn btn-primary" onClick={() => setActiveDetailsItem(null)}>{text.close}</button>
               </div>
             </div>
           </div>
