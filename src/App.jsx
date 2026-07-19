@@ -349,13 +349,7 @@ function App() {
     setAuthError('');
     const provider = new GoogleAuthProvider();
     try {
-      // Use redirect on mobile/touch devices, popup on desktop
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      if (isMobile) {
-        await signInWithRedirect(auth, provider);
-      } else {
-        await signInWithPopup(auth, provider);
-      }
+      await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Google Sign-In Error: ", error);
       if (error.code === 'auth/popup-blocked') {
