@@ -34,7 +34,9 @@ import {
   FileText,
   ChevronRight,
   Clock,
-  Languages
+  Languages,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 // Translation Dictionary
@@ -160,9 +162,25 @@ const t = {
 };
 
 function App() {
+  // Theme state: default to dark
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
   // Localized state: default to Hebrew ('he')
   const [lang, setLang] = useState(localStorage.getItem('wallet_lang') || 'he');
   const text = t[lang];
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   // Auth State
   const [user, setUser] = useState(null);
@@ -489,8 +507,19 @@ function App() {
         <div className="bg-glow-2"></div>
         <div className="glass-panel auth-card fade-in">
           <div className="auth-header">
-            {/* Language Switcher in Auth */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+            {/* Language & Theme Switcher in Auth */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '16px' }}>
+              <button 
+                type="button" 
+                className="btn btn-secondary" 
+                style={{ padding: '4px 10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '8px' }}
+                onClick={toggleTheme}
+                title={lang === 'he' ? (theme === 'light' ? 'מצב כהה' : 'מצב בהיר') : (theme === 'light' ? 'Dark Mode' : 'Light Mode')}
+              >
+                {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+                <span>{lang === 'he' ? (theme === 'light' ? 'כהה' : 'בהיר') : (theme === 'light' ? 'Dark' : 'Light')}</span>
+              </button>
+
               <button 
                 type="button" 
                 className="btn btn-secondary" 
@@ -580,6 +609,17 @@ function App() {
         </div>
         
         <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button 
+            type="button"
+            className="btn btn-secondary" 
+            style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid var(--panel-border)' }}
+            onClick={toggleTheme}
+            title={lang === 'he' ? (theme === 'light' ? 'מצב כהה' : 'מצב בהיר') : (theme === 'light' ? 'Dark Mode' : 'Light Mode')}
+          >
+            {theme === 'light' ? <Moon size={13} /> : <Sun size={13} />}
+            <span>{lang === 'he' ? (theme === 'light' ? 'כהה' : 'בהיר') : (theme === 'light' ? 'Dark' : 'Light')}</span>
+          </button>
+
           <button 
             type="button"
             className="btn btn-secondary" 
