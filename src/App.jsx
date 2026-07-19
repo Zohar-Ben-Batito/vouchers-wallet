@@ -7,6 +7,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
+  getRedirectResult,
   sendPasswordResetEmail
 } from 'firebase/auth';
 import { 
@@ -259,6 +260,24 @@ function App() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // Handle redirect result from Google Sign-In
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          setUser(result.user);
+        }
+      })
+      .catch((error) => {
+        console.error("Redirect Result Error: ", error);
+        if (error.code === 'auth/unauthorized-domain') {
+          setAuthError(lang === 'he' ? 'דומיין זה אינו מאושר בהגדרות Firebase Auth. יש להוסיף אותו לרשימת הדומיינים המאושרים.' : 'This domain is not authorized in Firebase Auth settings. Please add it to the authorized domains list.');
+        } else {
+          setAuthError(error.message);
+        }
+      });
+  }, [lang]);
 
   // Monitor Auth State
   useEffect(() => {
