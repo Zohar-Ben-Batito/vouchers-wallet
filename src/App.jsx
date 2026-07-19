@@ -3,7 +3,10 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { 
   collection, 
@@ -98,7 +101,15 @@ const t = {
     invalidEmailPass: "Invalid email or password.",
     emailInUse: "Email already in use.",
     weakPassword: "Password should be at least 6 characters.",
-    fillAllFields: "Please fill in all fields."
+    fillAllFields: "Please fill in all fields.",
+    signInWithGoogle: "Continue with Google",
+    forgotPassword: "Forgot Password?",
+    resetPassword: "Reset Password",
+    resetPasswordSub: "Enter your email to receive a password reset link.",
+    sendResetLink: "Send Reset Link",
+    backToLogin: "Back to Log In",
+    resetEmailSent: "Password reset email sent! Check your inbox.",
+    resetError: "Failed to send reset email. Please try again."
   },
   he: {
     appTitle: "מענקים ושוברים",
@@ -157,7 +168,15 @@ const t = {
     invalidEmailPass: "אימייל או סיסמה שגויים.",
     emailInUse: "האימייל כבר בשימוש.",
     weakPassword: "הסיסמה חייבת להיות לפחות 6 תווים.",
-    fillAllFields: "אנא מלא את כל השדות."
+    fillAllFields: "אנא מלא את כל השדות.",
+    signInWithGoogle: "המשך עם Google",
+    forgotPassword: "שכחת סיסמה?",
+    resetPassword: "איפוס סיסמה",
+    resetPasswordSub: "הזן את כתובת האימייל שלך לקבלת קישור לאיפוס סיסמה.",
+    sendResetLink: "שלח קישור לאיפוס",
+    backToLogin: "חזרה להתחברות",
+    resetEmailSent: "אימייל לאיפוס סיסמה נשלח! בדוק את תיבת הדואר הנכנס.",
+    resetError: "שליחת אימייל לאיפוס נכשלה. אנא נסה שוב."
   }
 };
 
@@ -189,6 +208,9 @@ function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSuccess, setResetSuccess] = useState('');
 
   // UI State
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'voucher', 'coupon', 'membership'
@@ -301,6 +323,41 @@ function App() {
 
   const handleLogout = () => {
     signOut(auth);
+  };
+
+  const handleGoogleSignIn = async () => {
+    setAuthError('');
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Google Sign-In Error: ", error);
+      if (error.code === 'auth/popup-blocked') {
+        setAuthError(lang === 'he' ? 'החלון הקופץ נחסם על ידי הדפדפן. אנא אפשר חלונות קופצים.' : 'Popup was blocked by the browser. Please allow popups.');
+      } else if (error.code === 'auth/operation-not-allowed') {
+        setAuthError(lang === 'he' ? 'התחברות עם Google אינה מאופשרת בפרויקט Firebase.' : 'Google Sign-In is not enabled in Firebase Console.');
+      } else {
+        setAuthError(error.message);
+      }
+    }
+  };
+
+  const handlePasswordResetSubmit = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setResetSuccess('');
+    try {
+      await sendPasswordResetEmail(auth, resetEmail);
+      setResetSuccess(text.resetEmailSent);
+      setResetEmail('');
+    } catch (error) {
+      console.error("Password Reset Error: ", error);
+      if (error.code === 'auth/user-not-found') {
+        setAuthError(lang === 'he' ? 'לא נמצא משתמש עם כתובת אימייל זו.' : 'No user found with this email.');
+      } else {
+        setAuthError(error.message);
+      }
+    }
   };
 
   // Add/Edit Operations
@@ -501,6 +558,79 @@ function App() {
   }
 
   if (!user) {
+    if (isForgotPassword) {
+      return (
+        <div className="auth-container" dir={lang === 'he' ? 'rtl' : 'ltr'}>
+          <div className="bg-glow-1"></div>
+          <div className="bg-glow-2"></div>
+          <div className="glass-panel auth-card fade-in">
+            <div className="auth-header">
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '16px' }}>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  style={{ padding: '4px 10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '8px' }}
+                  onClick={toggleTheme}
+                  title={lang === 'he' ? (theme === 'light' ? 'מצב כהה' : 'מצב בהיר') : (theme === 'light' ? 'Dark Mode' : 'Light Mode')}
+                >
+                  {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+                  <span>{lang === 'he' ? (theme === 'light' ? 'כהה' : 'בהיר') : (theme === 'light' ? 'Dark' : 'Light')}</span>
+                </button>
+
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  style={{ padding: '4px 10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', borderRadius: '8px' }}
+                  onClick={toggleLanguage}
+                >
+                  <Languages size={14} />
+                  <span>{lang === 'he' ? 'English' : 'עברית'}</span>
+                </button>
+              </div>
+
+              <div className="auth-logo">{text.appTitle}</div>
+              <div className="auth-subtitle">
+                {text.resetPassword}
+              </div>
+            </div>
+
+            {authError && <div className="error-message">{authError}</div>}
+            {resetSuccess && <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399', padding: '10px 14px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '12px' }}>{resetSuccess}</div>}
+
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px', textAlign: 'center' }}>
+              {text.resetPasswordSub}
+            </p>
+
+            <form className="auth-form" onSubmit={handlePasswordResetSubmit}>
+              <div className="form-group">
+                <label className="form-label">{text.email}</label>
+                <div className="input-with-icon-container">
+                  <Mail size={16} />
+                  <input 
+                    type="email" 
+                    className="input-with-icon"
+                    placeholder="name@example.com" 
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ marginTop: '10px' }}>
+                {text.sendResetLink}
+              </button>
+            </form>
+
+            <div className="auth-footer">
+              <span className="auth-link" onClick={() => { setIsForgotPassword(false); setAuthError(''); setResetSuccess(''); }}>
+                {text.backToLogin}
+              </span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="auth-container" dir={lang === 'he' ? 'rtl' : 'ltr'}>
         <div className="bg-glow-1"></div>
@@ -567,13 +697,45 @@ function App() {
                   required
                 />
               </div>
+              {!isSignUp && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
+                  <span 
+                    className="auth-link" 
+                    style={{ fontSize: '12px' }} 
+                    onClick={() => { setIsForgotPassword(true); setAuthError(''); }}
+                  >
+                    {text.forgotPassword}
+                  </span>
+                </div>
+              )}
             </div>
             <button type="submit" className="btn btn-primary" style={{ marginTop: '10px' }}>
               {isSignUp ? text.signup : text.login}
             </button>
           </form>
+
+          <div style={{ display: 'flex', alignItems: 'center', margin: '16px 0', color: 'var(--text-muted)', fontSize: '12px' }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--panel-border)' }}></div>
+            <span style={{ padding: '0 10px' }}>{lang === 'he' ? 'או' : 'OR'}</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--panel-border)' }}></div>
+          </div>
+
+          <button 
+            type="button" 
+            className="btn btn-secondary" 
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', padding: '12px 16px', background: 'var(--btn-secondary-bg)', border: '1px solid var(--panel-border)', borderRadius: 'var(--radius-sm)', fontWeight: '600' }}
+            onClick={handleGoogleSignIn}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+            </svg>
+            <span>{text.signInWithGoogle}</span>
+          </button>
           
-          <div className="auth-footer">
+          <div className="auth-footer" style={{ marginTop: '20px' }}>
             {isSignUp ? text.alreadyAccount : text.dontHaveAccount}{' '}
             <span className="auth-link" onClick={() => { setIsSignUp(!isSignUp); setAuthError(''); }}>
               {isSignUp ? text.login : text.signup}
