@@ -6,6 +6,7 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
   sendPasswordResetEmail
 } from 'firebase/auth';
 import { 
@@ -329,13 +330,26 @@ function App() {
     setAuthError('');
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      // Use redirect on mobile/touch devices, popup on desktop
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        await signInWithRedirect(auth, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
     } catch (error) {
       console.error("Google Sign-In Error: ", error);
       if (error.code === 'auth/popup-blocked') {
-        setAuthError(lang === 'he' ? 'החלון הקופץ נחסם על ידי הדפדפן. אנא אפשר חלונות קופצים.' : 'Popup was blocked by the browser. Please allow popups.');
+        // Fallback to redirect if popup is blocked
+        try {
+          await signInWithRedirect(auth, provider);
+        } catch (redirectError) {
+          setAuthError(redirectError.message);
+        }
       } else if (error.code === 'auth/operation-not-allowed') {
         setAuthError(lang === 'he' ? 'התחברות עם Google אינה מאופשרת בפרויקט Firebase.' : 'Google Sign-In is not enabled in Firebase Console.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        setAuthError(lang === 'he' ? 'דומיין זה אינו מאושר בהגדרות Firebase Auth. יש להוסיף אותו לרשימת הדומיינים המאושרים.' : 'This domain is not authorized in Firebase Auth settings. Please add it to the authorized domains list.');
       } else {
         setAuthError(error.message);
       }
