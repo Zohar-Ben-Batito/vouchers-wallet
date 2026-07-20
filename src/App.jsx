@@ -47,7 +47,7 @@ import {
 // Translation Dictionary
 const t = {
   en: {
-    appTitle: "מענקים ושוברים",
+    appTitle: "Grants & Vouchers",
     activeItems: "Active Items",
     expiringSoon: "Expiring Soon",
     all: "All",
